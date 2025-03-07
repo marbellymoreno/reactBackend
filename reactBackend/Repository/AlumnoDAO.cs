@@ -11,13 +11,13 @@ namespace reactBackend.Repository
     public class AlumnoDAO
     {
         #region Context
-        public RegistroAlumnosContext contecxto = new RegistroAlumnosContext();
+        public RegistroAlumnosContext contexto = new RegistroAlumnosContext();
         #endregion
 
         #region SelectAll
         public List<Alumno> SelectAll()
         {
-            var alumno = contecxto.Alumnos.ToList<Alumno>();
+            var alumno = contexto.Alumnos.ToList<Alumno>();
             return alumno;
         }
         #endregion
@@ -25,7 +25,7 @@ namespace reactBackend.Repository
         #region GetByID
         public Alumno GetByID(int id)
         {
-            var alumno = contecxto.Alumnos.Where(x => x.Id == id).FirstOrDefault();
+            var alumno = contexto.Alumnos.Where(x => x.Id == id).FirstOrDefault();
             return alumno == null ? null : alumno;
         }
         #endregion
@@ -43,8 +43,8 @@ namespace reactBackend.Repository
                     Email = alumno.Email
                 };
 
-                contecxto.Alumnos.Add(alum);
-                contecxto.SaveChanges();
+                contexto.Alumnos.Add(alum);
+                contexto.SaveChanges();
                 return true;
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace reactBackend.Repository
                 alumnoUpdate.Dni = alumno.Dni;
                 alumnoUpdate.Direccion = alumno.Direccion;
                 alumnoUpdate.Email = alumno.Email;
-                contecxto.SaveChanges();
+                contexto.SaveChanges();
                 return true;
             }
             catch (Exception e)
@@ -91,8 +91,8 @@ namespace reactBackend.Repository
                     return false;
                 }
 
-                contecxto.Alumnos.Remove(alumno);
-                contecxto.SaveChanges();
+                contexto.Alumnos.Remove(alumno);
+                contexto.SaveChanges();
                 return true;
             }
             catch (Exception e)
