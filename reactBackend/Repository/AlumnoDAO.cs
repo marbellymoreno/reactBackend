@@ -203,7 +203,7 @@ namespace reactBackend.Repository
             {
                 Matricula matricula = new Matricula();
                 matricula.AlumnoId = alumno.Id;
-                matricula.AsignaturaId = idAsignatura;
+                matricula.Id= idAsignatura;
                 contexto.Matriculas.Add(matricula);
                 contexto.SaveChanges();
                 return true;
