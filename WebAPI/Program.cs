@@ -13,6 +13,8 @@ namespace WebAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddCors(policyBuilder => policyBuilder.AddDefaultPolicy(
+                builder => builder.WithOrigins("*").AllowAnyHeader().AllowAnyMethod()));
 
             var app = builder.Build();
 
@@ -26,7 +28,6 @@ namespace WebAPI
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
