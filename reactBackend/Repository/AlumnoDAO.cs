@@ -1,10 +1,10 @@
-﻿using System;
+﻿using reactBackend.Context;
+using reactBackend.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using reactBackend.Context;
-using reactBackend.Models;
 
 namespace reactBackend.Repository
 {
@@ -23,7 +23,7 @@ namespace reactBackend.Repository
         #endregion
 
         #region GetByID
-        public Alumno GetByID(int id)
+        public Alumno? GetByID(int id)
         {
             var alumno = contexto.Alumnos.Where(x => x.Id == id).FirstOrDefault();
             return alumno == null ? null : alumno;
@@ -40,7 +40,7 @@ namespace reactBackend.Repository
                     Nombre = alumno.Nombre,
                     Dni = alumno.Dni,
                     Direccion = alumno.Direccion,
-                    Email = alumno.Email
+                    Email = alumno.Email    
                 };
 
                 contexto.Alumnos.Add(alum);
@@ -85,22 +85,137 @@ namespace reactBackend.Repository
         {
             try
             {
-                var alumno = GetByID(id);
-                if (alumno == null)
+                // Debemos verificar el id del alumno
+                var alumno = contexto.Alumnos.Where(x => x.Id == id).FirstOrDefault();
+                if (alumno != null)
                 {
+                    // matriculaAlumno == idALumno
+                    var matriculaA = contexto.Matriculas.Where(x => x.AlumnoId == alumno.Id).ToList();
+                    Console.WriteLine("Alumno  encontrado");
+                    //Traemos la calificaciones asociadas a esa matricula 
+                    foreach (Matricula m in matriculaA)
+                    {
+                        var calificacion = contexto.Calificacions.Where(x => x.MatriculaId == m.Id).ToList();
+                        Console.WriteLine("Matricula encontrada");
+                        contexto.Calificacions.RemoveRange(calificacion);
+
+                    }
+                    contexto.Matriculas.RemoveRange(matriculaA);
+                    contexto.Alumnos.Remove(alumno);
+                    contexto.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Alumno no encontrado");
                     return false;
                 }
-
-                contexto.Alumnos.Remove(alumno);
-                contexto.SaveChanges();
-                return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e.InnerException);
+                Console.WriteLine(ex.Message);
+                return false;
+
+            }
+        }
+        #endregion
+
+        #region LeftJoin
+        public List<AlumnoAsignatura> GetAlumnoAsignatura()
+        {
+            var query = from a in contexto.Alumnos
+                        join m in contexto.Matriculas on a.Id equals m.AlumnoId
+                        join asig in contexto.Asignaturas on m.Id equals asig.Id
+                        select new AlumnoAsignatura
+                        {
+                            nombreAlumno = a.Nombre,
+                            nombreAsignatura = asig.Nombre
+                        };
+
+            return query.ToList();
+        }
+        #endregion
+
+        #region AlumnoProfesor
+        public List<AlumnoProfesor> AlumnoProfesors(string nombreProfesor)
+        {
+            var listadoALumno = from a in contexto.Alumnos
+                                join m in contexto.Matriculas on a.Id equals m.AlumnoId
+                                join asig in contexto.Asignaturas on m.Id equals asig.Id
+                                where asig.Profesor == nombreProfesor
+                                select new AlumnoProfesor
+                                {
+                                    Id = a.Id,
+                                    Dni = a.Dni,
+                                    Nombre = a.Nombre,
+                                    Direccion = a.Direccion,
+                                    Edad = a.Edad,
+                                    Correo = a.Email,
+                                    Asignatura = asig.Nombre
+                                };
+
+            return listadoALumno.ToList();
+        }
+        #endregion
+
+        #region AlumnoDNI
+        public Alumno DNIAlumno(Alumno alumno)
+        {
+            var alumnos = contexto.Alumnos.Where(x => x.Dni == alumno.Dni).FirstOrDefault();
+            return alumnos == null ? null : alumnos;
+        }
+        #endregion
+
+        #region AlumnoMatricula
+        public bool InsertarMatricula(Alumno alumno, int idAsing)
+        {
+            try
+            {
+                var alumnoDNI = DNIAlumno(alumno);
+                if (alumnoDNI == null)
+                {
+                    InsertAlumno(alumno);
+                    var alumnoInsertado = DNIAlumno(alumno); // Recuperamos el alumno con el ID generado
+
+                    if (alumnoInsertado == null)
+                        return false; // Evitamos errores si el alumno no se insertó correctamente
+
+                    var unirAlumnoMatricula = MatriculaAsignaturaALumno(alumnoInsertado, idAsing);
+                    return unirAlumnoMatricula; // Devolvemos el resultado de la matrícula
+                }
+                else
+                {
+                    return MatriculaAsignaturaALumno(alumnoDNI, idAsing);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en InsertarMatricula: {ex.Message}");
                 return false;
             }
         }
         #endregion
+
+        #region Matriucla
+        public bool MatriculaAsignaturaALumno(Alumno alumno, int idAsignatura)
+        {
+            try
+            {
+                Matricula matricula = new Matricula();
+                matricula.AlumnoId = alumno.Id;
+                matricula.AsignaturaId = idAsignatura;
+                contexto.Matriculas.Add(matricula);
+                contexto.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+        #endregion
+
+
     }
 }
