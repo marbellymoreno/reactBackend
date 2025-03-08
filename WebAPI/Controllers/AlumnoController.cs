@@ -28,5 +28,13 @@ namespace WebAPI.Controllers
         }
         #endregion
 
+        #region UpdatAlumno
+        [HttpPut("alumno")]
+        public bool ActualizarAlumno([FromBody] Alumno alum)
+        {
+            return _alDAO.UpdateAlumno(alum.Id, alum);
+        }
+        #endregion
+
     }
 }
