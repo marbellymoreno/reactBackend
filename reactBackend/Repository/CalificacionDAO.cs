@@ -62,5 +62,29 @@ namespace reactBackend.Repository
             }
         }
         #endregion
+
+        #region DeleteCalificacion
+        public bool EliminarCalificacion(int id)
+        {
+            try
+            {
+                var calificacion = _contexto.Calificacions.Where(x => x.Id == id).FirstOrDefault();
+                if (calificacion == null)
+                {
+                    return false;
+                }
+
+                _contexto.Calificacions.Remove(calificacion);
+                _contexto.SaveChanges();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException);
+                return false;
+
+            }
+        }
+        #endregion
     }
 }
