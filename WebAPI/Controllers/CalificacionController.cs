@@ -18,5 +18,13 @@ namespace WebAPI.Controllers
             return _cali.Seleccion(idMatricula);
         }
         #endregion
+
+        #region PostCalificaciones
+        [HttpPost("calificaciones")]
+        public bool Insertar([FromBody] Calificacion calificacion)
+        {
+            return _cali.InsertCalificacion(calificacion);
+        }
+        #endregion
     }
 }

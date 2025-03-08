@@ -41,5 +41,26 @@ namespace reactBackend.Repository
             }
         }
         #endregion
+
+        #region InsertCalificacion
+        public bool InsertCalificacion(Calificacion calificacion)
+        {
+            try
+            {
+                if (calificacion == null)
+                {
+                    return false;
+                }
+                _contexto.Calificacions.Add(calificacion);
+                _contexto.SaveChanges();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException);
+                return false;
+            }
+        }
+        #endregion
     }
 }
